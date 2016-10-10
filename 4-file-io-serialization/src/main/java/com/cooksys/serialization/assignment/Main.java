@@ -4,7 +4,13 @@ import com.cooksys.serialization.assignment.model.*;
 
 import javax.xml.bind.JAXBContext;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+
+
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.Marshaller;
 
 public class Main {
 
@@ -17,8 +23,20 @@ public class Main {
      * @param jaxb the JAXB context to use
      * @return a {@link Student} object built using the {@link Contact} data in the given file
      */
-    public static Student readStudent(File studentContactFile, JAXBContext jaxb) {
-        return null; // TODO
+    public static Student readStudent(File contactFile, JAXBContext jaxbContext) {
+        //return null; // TODO
+    	try {
+    		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+    		Contact contact = (Contact) jaxbUnmarshaller.unmarshal(contactFile);
+    	System.out.println(contact.toString());
+    	    Student student = new Student();
+    	    student.setContact(contact);
+    		return student;
+    		
+    	  } catch (JAXBException e) {
+    		e.printStackTrace();
+    	  }
+    	return null;
     }
 
     /**
@@ -29,7 +47,17 @@ public class Main {
      * @return a list of {@link Student} objects built using the contact files in the given directory
      */
     public static List<Student> readStudents(File studentDirectory, JAXBContext jaxb) {
-        return null; // TODO
+        //return null; // TODO
+    	List<Student> students = new ArrayList<Student>();
+    	File[] listOfFiles = studentDirectory.listFiles();
+
+    	    for (File file:listOfFiles) {
+    	      if (file.isFile()) {
+    	    	Student student = readStudent(file, jaxb);    
+    	    	students.add(student);
+    	      }
+    	    }
+    	    return students;
     }
 
     /**
@@ -41,8 +69,20 @@ public class Main {
      * @param jaxb the JAXB context to use
      * @return an {@link Instructor} object built using the {@link Contact} data in the given file
      */
-    public static Instructor readInstructor(File instructorContactFile, JAXBContext jaxb) {
-        return null; // TODO
+    public static Instructor readInstructor(File contactFile, JAXBContext jaxbContext) {
+        //return null; // TODO
+    	try {
+    		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+    		Contact contact = (Contact) jaxbUnmarshaller.unmarshal(contactFile);
+    	System.out.println(contact.toString());
+    	    Instructor instructor = new Instructor();
+    	    instructor.setContact(contact);
+    		return instructor;
+
+    	  } catch (JAXBException e) {
+    		e.printStackTrace();
+    	  }
+    	return null;
     }
 
     /**
@@ -96,8 +136,76 @@ public class Main {
      *               ...
      *           </students>
      *      </session>
+     * @throws JAXBException 
      */
-    public static void main(String[] args) {
-        // TODO
+    public static void main(String[] args) throws JAXBException {
+//    	String dirName = "input\\memphis\\08-08-2016\\";
+//    	File instructorContactFile = new File(dirName + "instructor.xml");
+    	JAXBContext jaxbContext = JAXBContext.newInstance(Contact.class);
+//    	Instructor instructor = readInstructor(instructorContactFile, jaxbContext); //Reading Instructor!
+//    	
+//    	dirName += "students\\";
+//    	File dir = new File(dirName);
+//    	List<Student> studentsList = readStudents(dir, jaxbContext);
+    	
+    	String dirName = "input\\";
+    	Session session = new Session();
+    	File dir = new File(dirName);
+    	
+    	File[] listOfFiles = dir.listFiles();
+	    for (File locationDir:listOfFiles) {
+	      if (! locationDir.isFile()) {
+	    	String sessionLocation = locationDir.getName(); //Now we know session location!
+	    	//System.out.println(sessionLocation);
+	    	session.setLocation(sessionLocation);
+	    	    dirName += sessionLocation + "\\";                //Go deeper
+	    	    dir = new File(dirName);
+	    	    listOfFiles = dir.listFiles();
+	    	    for (File dateDir:listOfFiles) {
+	    		      if (! dateDir.isFile()) {
+	    		    	  String sessionDate = dateDir.getName(); //Now we know session date!
+	    			    	//System.out.println(sessionDate);
+
+	    			    	session.setStartDate(sessionDate);
+	    			    	    dirName += sessionDate + "\\";                //Go deeper
+	    			    	    //System.out.println(dirName);
+	    			    	    dir = new File(dirName);
+	    			    	    listOfFiles = dir.listFiles();
+	    			    	    
+	    			    	    for (File contactsDir:listOfFiles) {
+	    			    		      if (! contactsDir.isFile()) {     //If the file is a folder ("students"):
+	    			    		      	List<Student> studentsList = readStudents(contactsDir, jaxbContext);
+	    			    		      	session.setStudents(studentsList);
+	    			    		      }
+	    			    		      else {                           //If the file is a file ("instructor.xml"):
+	    			    			    	File instructorFile = new File(dirName + "instructor.xml");
+	    			    			    	//JAXBContext jaxbContext = JAXBContext.newInstance(Contact.class);
+	    			    			    	Instructor instructor = readInstructor(instructorFile, jaxbContext); //Reading Instructor!
+	    			    			    	//System.out.println(instructor.toString());
+	    			    			    	session.setInstructor(instructor);
+	    			    		      }
+	    			    		      //break;
+	    			    	    }
+	    		    	  
+	    		      }
+	    		      break;
+	    	    }
+	    	break;
+	      }
+	    }
+	    
+	    /*
+	     * Marshalling
+	     *
+	     */
+	    File file = new File("output\\session.xml");
+		JAXBContext jaxb = JAXBContext.newInstance(Session.class);
+		Marshaller jaxbMarshaller = jaxb.createMarshaller();
+
+		// output pretty printed
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+		jaxbMarshaller.marshal(session, file);
+		//jaxbMarshaller.marshal(session, System.out);
     }
 }
