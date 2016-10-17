@@ -1,4 +1,4 @@
-package com.cooksys.serialization.assignment.model;
+package com.cooksys.ftd.assignments.file.model;
 
 import java.util.List;
 

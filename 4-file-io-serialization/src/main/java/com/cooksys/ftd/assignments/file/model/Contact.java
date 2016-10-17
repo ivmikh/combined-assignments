@@ -1,4 +1,4 @@
-package com.cooksys.serialization.assignment.model;
+package com.cooksys.ftd.assignments.file.model;
 
 public class Contact {
     private String firstName;

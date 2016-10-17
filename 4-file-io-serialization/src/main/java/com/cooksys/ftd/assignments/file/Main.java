@@ -1,6 +1,9 @@
-package com.cooksys.serialization.assignment;
+package com.cooksys.ftd.assignments.file;
 
-import com.cooksys.serialization.assignment.model.*;
+import com.cooksys.ftd.assignments.file.model.Contact;
+import com.cooksys.ftd.assignments.file.model.Instructor;
+import com.cooksys.ftd.assignments.file.model.Session;
+import com.cooksys.ftd.assignments.file.model.Student;
 
 import javax.xml.bind.JAXBContext;
 import java.io.File;
